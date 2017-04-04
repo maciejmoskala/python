@@ -70,7 +70,7 @@ class MinAbsSubarray():
             solution = min(abs(element), abs(previous_element-element), solution)
             previous_element = element
             if solution == 0:
-               break
+                break
         return solution
 
     @Timeit
@@ -90,7 +90,7 @@ class MinAbsSubarray():
                 sum_of_elements += element
                 solution = min(abs(sum_of_elements), solution)
                 if solution == 0:
-                   return solution
+                    return solution
         return solution
 
 class TestStringMethods(unittest.TestCase):
