@@ -61,8 +61,8 @@ class AllegroUserItems():
                 'filterPriceTo': float(higher_filter_bandwidth),
             }
         }
-        sell_items = user.client.service.doGetMySellItems(
-            user.session_handle,
+        sell_items = self.user.client.service.doGetMySellItems(
+            self.user.session_handle,
             sort_property,
             filter_property,
             None,
@@ -108,12 +108,12 @@ class AllegroUserItems():
         return new_item_price
 
     @staticmethod
-    def item_price_can_change(item_price = float(0), new_item_price = float(0)):
+    def item_price_can_change(item_price, new_item_price):
         return (item_price != new_item_price and new_item_price >= 1)
 
-    def change_item_price(self, item_id, new_item_price = float()):
+    def change_item_price(self, item_id, new_item_price):
         try:
-            user.client.service.doChangePriceItem(
+            self.user.client.service.doChangePriceItem(
                 self.user.session_handle,
                 item_id,
                 None,
@@ -171,7 +171,7 @@ if __name__ == '__main__':
     # Change price for items with price from 2 to 10 PLN by -5 procent and round 
     # price to finish with 9.
     user_items.update_user_sell_items_price(
-        lover_filter_bandwidth = 2,
-        higher_filter_bandwidth = 100,
-        change_percent = -1,
+        lover_filter_bandwidth=2,
+        higher_filter_bandwidth=100,
+        change_percent=-1,
     )
