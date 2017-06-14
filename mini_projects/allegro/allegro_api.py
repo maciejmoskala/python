@@ -3,8 +3,10 @@
 """
 Problem: Make program to change prices on allegro.pl.
 """
+import logging
+from zeep import Client
 
-from suds.client import Client
+logger = logging.getLogger(__name__)
 
 
 class AllegroApi():
@@ -15,9 +17,9 @@ class AllegroApi():
 
 class AllegroUser(AllegroApi):
 
-    country_code = 1
+    COUNTRY_CODE = 1
 
-    def __init__(self, login = '', password = '', web_api_key = ''):
+    def __init__(self, login='', password='', web_api_key=''):
         self.login = login
         self.password = password
         self.web_api_key = web_api_key
@@ -26,17 +28,19 @@ class AllegroUser(AllegroApi):
     def verification_key(self):
         allegro_response = self.client.service.doQuerySysStatus(
             2,
-            self.country_code,
-            self.web_api_key)
+            self.COUNTRY_CODE,
+            self.web_api_key,
+        )
         return allegro_response['verKey']
 
     def get_login_parameters(self):
         login_status = self.client.service.doLogin(
             self.login,
             self.password,
-            self.country_code,
+            self.COUNTRY_CODE,
             self.web_api_key,
-            self.verification_key)
+            self.verification_key,
+        )
         self.session_handle = login_status['sessionHandlePart']
         self.user_id = login_status['userId']
         self.service_time = login_status['serverTime']
@@ -44,50 +48,57 @@ class AllegroUser(AllegroApi):
 
 class AllegroUserItems():
 
-    def __init__(self, user = AllegroUser()):
+    def __init__(self, user=AllegroUser()):
         self.user = user
+        self.items = []
 
-    def get_user_sell_items_information(self, lover_filter_bandwidth = float(0),
-            higher_filter_bandwidth = float(0), page_size = 1000,
-            page_number = 0):
+    def get_user_sell_items_information(self, lover_filter_bandwidth=0,
+            higher_filter_bandwidth=0, page_size=1000, page_number=0):
+        sort_property = {'sortType': 2, 'sortOrder': 1}
+        filter_property = {
+            'filterPrice': {
+                'filterPriceFrom': float(lover_filter_bandwidth),
+                'filterPriceTo': float(higher_filter_bandwidth),
+            }
+        }
         sell_items = user.client.service.doGetMySellItems(
             user.session_handle,
-            {'sortType': 2, 'sortOrder': 1},
-            {'filterPrice':
-                {'filterPriceFrom': lover_filter_bandwidth,
-                'filterPriceTo': higher_filter_bandwidth}},
+            sort_property,
+            filter_property,
             None,
             None,
             None,
             page_size,
-            page_number)
+            page_number
+        )
 
-        self.items_counter = sell_items['sellItemsCounter']
-        items = sell_items['sellItemsList']['item'] or []
+        self.items_counter = sell_items.sellItemsCounter or 0
+        items = sell_items.sellItemsList['item'] or []
         return items
 
-    def get_all_user_sell_items(self, lover_filter_bandwidth = float(0),
-            higher_filter_bandwidth = float(0), page_size = 1000):
+    def get_all_user_sell_items(self, lover_filter_bandwidth=0,
+            higher_filter_bandwidth=0, page_size=1000):
         self.items = self.get_user_sell_items_information(
-            lover_filter_bandwidth,
-            higher_filter_bandwidth,
-            page_size)
+            lover_filter_bandwidth=lover_filter_bandwidth,
+            higher_filter_bandwidth=higher_filter_bandwidth,
+            page_size=page_size,
+        )
 
         if self.items_counter > page_size:
-            for page_number in xrange(1, ((self.items_counter-1)//page_size)+1):
+            for page_number in range(1, ((self.items_counter-1)//page_size)+1):
                 self.items += self.get_user_sell_items_information(
-                    lover_filter_bandwidth,
-                    higher_filter_bandwidth,
-                    page_size,
-                    page_number)
+                    lover_filter_bandwidth=lover_filter_bandwidth,
+                    higher_filter_bandwidth=higher_filter_bandwidth,
+                    page_size=page_size,
+                    page_number=page_number,
+                )
 
     @staticmethod
-    def get_new_item_price(item_price = float(0), change_percent = float(0),
-            round_price = True):
+    def get_new_item_price(item_price=0, change_percent=0, round_price=True):
         item_price = float(item_price)
         change_percent = float(change_percent)
 
-        if round_price == True:
+        if round_price:
             new_item_price = round(round(item_price*(1 + change_percent/100), 1)-0.01, 2)
         else:
             new_item_price = round(item_price*(1 + change_percent/100), 2)
@@ -109,51 +120,58 @@ class AllegroUserItems():
                 None,
                 new_item_price)
         except ValueError as e:
-            print e
+            logger.warning("Dla produktu {0} wystąpił błąd: {1}!".format(item_id, e))
         else:
-            print "Dla produktu %d cena zostala zaktualizowana na %.2f." % (
-                item_id, new_item_price)
+            logger.info("Dla produktu %d cena zostala zaktualizowana na %.2f." % (
+                item_id, new_item_price))
 
-    def update_user_sell_items_price(self, lover_filter_bandwidth = float(0),
-            higher_filter_bandwidth = float(0), change_percent = float(0),
-            round_price = True):
+    def update_user_sell_items_price(self, lover_filter_bandwidth=0,
+            higher_filter_bandwidth=0, change_percent=0, round_price=True):
         if change_percent == 0:
-            print 'Change procent is not set'
+            logger.info('Nieprawidłowe ustawienie zmiany ceny!')
             return False
 
-        self.get_all_user_sell_items(lover_filter_bandwidth,
-            higher_filter_bandwidth)
-
-        print self.items
+        self.get_all_user_sell_items(
+            lover_filter_bandwidth=lover_filter_bandwidth,
+            higher_filter_bandwidth=higher_filter_bandwidth,
+        )
 
         for item in self.items:
             item_id = item['itemId']
-            item_price = item['itemPrice']['item'][0]['priceValue']
-            new_item_price = self.get_new_item_price(
-                item_price, change_percent, round_price)
-
-            if self.item_price_can_change(item_price, new_item_price):
-                self.change_item_price(item_id, new_item_price)
+            item_prices = item['itemPrice']
+            for item_price in item_prices['item']:
+                if item_price['priceType'] == 1:
+                    new_item_price = self.get_new_item_price(
+                        item_price.priceValue,
+                        change_percent,
+                        round_price,
+                    )
+                    if self.item_price_can_change(item_price, new_item_price):
+                        self.change_item_price(item_id, new_item_price)
 
         return True
 
 
 if __name__ == '__main__':
+    logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO)
+
     user = AllegroUser(
-        login = 'user or email',
-        password = 'password',
-        web_api_key = 'you can generate it on allegro.pl website')
+        login='user or email',
+        password='password',
+        web_api_key='you can generate it on allegro.pl website',
+    )
     user.get_login_parameters()
 
     user_items = AllegroUserItems(user)
 
     # Get all user items
     user_items.get_all_user_sell_items()
-    print len(user_items.items)
+    logger.info("User Items: {}".format(len(user_items.items)))
 
     # Change price for items with price from 2 to 10 PLN by -5 procent and round 
     # price to finish with 9.
     user_items.update_user_sell_items_price(
         lover_filter_bandwidth = 2,
-        higher_filter_bandwidth = 10,
-        change_percent = -5)
+        higher_filter_bandwidth = 100,
+        change_percent = -1,
+    )
