@@ -1,4 +1,8 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 import logging
+import traceback
 import tkinter as tk
 from collections import namedtuple
 from allegro_api import AllegroUser
@@ -9,15 +13,23 @@ Entry = namedtuple('Entry', ['name', 'text', 'default_value'])
 
 
 class LoggerHandler(logging.Handler):
-    """This class allows you to log to a Tkinter Text or ScrolledText widget"""
+    """
+    Klasa służąca do logowana komunikatów w konsoli.
+    """
+
     def __init__(self, console):
-        # run the regular Handler __init__
         logging.Handler.__init__(self)
-        # Store a reference to the Text it will log to
         self.console = console
+        self.console.config(state='disabled')
+        self.console.tag_config("INFO", foreground="black")
+        self.console.tag_config("DEBUG", foreground="grey")
+        self.console.tag_config("WARNING", foreground="orange")
+        self.console.tag_config("ERROR", foreground="red")
+        self.console.tag_config("CRITICAL", foreground="red", underline=1)
+
         # Loggger settings
-        self.set_logging(__name__, logging.INFO)
-        self.set_logging('allegro_api', logging.INFO)
+        self.set_logging(__name__, logging.DEBUG)
+        self.set_logging('allegro_api', logging.DEBUG)
 
     def set_logging(self, name, level):
         log_element = logging.getLogger(name)
@@ -26,17 +38,21 @@ class LoggerHandler(logging.Handler):
 
     def emit(self, record):
         msg = self.format(record)
+        tag = record.levelname
         def append():
             self.console.configure(state='normal')
-            self.console.insert(tk.END, msg+'\n')
+            self.console.insert(tk.END, msg+'\n', tag)
             self.console.configure(state='disabled')
-            # Autoscroll to the bottom
             self.console.yview(tk.END)
-        # This is necessary because we can't modify the Text from other threads
         self.console.after(0, append)
 
 
 class AllegroGui:
+    """
+    Klasa zawierająca panel do obsługi transakcji w serwisie allegro.
+    Lewa strona panelu zawiera panel nawigacyjna, a lewa strona konsolę
+    wyświetlającą komunikaty z serwisu.
+    """
 
     def __init__(self):
         self.top = tk.Tk()
@@ -75,7 +91,7 @@ class AllegroGui:
             Entry('pasword', "Hasło:", "password"),
             Entry('webkey', "Klucz Allegro WebAPI:", "webkey"),
             Entry('change_percent', "Zmiana o: [%]", "0.0"),
-            Entry('change_from', "Dla cen od: [zl]", "1"),
+            Entry('change_from', "Dla cen od: [zł]", "1"),
             Entry('change_to', "do: [zł]", "100000"),
         ]
 
@@ -115,6 +131,9 @@ class AllegroGui:
 
 
 class AllegroCallbacks:
+    """
+    Zbiór funkcji wywoływanych w serwisie.
+    """
 
     @staticmethod
     def change_price(login, password, webkey, change_percent, chage_from,
@@ -134,9 +153,9 @@ class AllegroCallbacks:
                 round_price=round_price,
             )
         except Exception as e:
+            logger.warning(traceback.format_exc())
             logger.error(e)
 
 
-if __name__ == '__main__':
-    gui = AllegroGui()
-    gui.top.mainloop()
+gui = AllegroGui()
+gui.top.mainloop()

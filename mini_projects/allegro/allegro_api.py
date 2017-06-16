@@ -1,8 +1,6 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
-"""
-Problem: Make program to change prices on allegro.pl.
-"""
 import logging
 from zeep import Client
 
@@ -16,6 +14,9 @@ class AllegroApi():
 
 
 class AllegroUser(AllegroApi):
+    """
+    Klasa bazowa do obsługi sesji użytkownika w serwisie Allego.
+    """
 
     COUNTRY_CODE = 1
 
@@ -47,6 +48,10 @@ class AllegroUser(AllegroApi):
 
 
 class AllegroUserItems():
+    """
+    Klasa służąca do obsługi posidanych tranzakcji w serwisie Allegro,
+    a zwłaszcza zmiany cen poszczególnych produktów o określony procent.
+    """
 
     def __init__(self, user=AllegroUser()):
         self.user = user
@@ -128,7 +133,7 @@ class AllegroUserItems():
     def update_user_sell_items_price(self, lover_filter_bandwidth=0,
             higher_filter_bandwidth=0, change_percent=0, round_price=True):
         if change_percent == 0:
-            logger.info('Nieprawidłowe ustawienie zmiany ceny!')
+            logger.warning('Nieprawidłowe ustawienie zmiany ceny!')
             return False
 
         self.get_all_user_sell_items(
@@ -152,6 +157,22 @@ class AllegroUserItems():
         return True
 
 
+class AllegroUserFeedbacks():
+    """
+    Klasa do obsługi komentarzy w serwisie allegro.
+    """
+
+    def __init__(self, user=AllegroUser()):
+        self.user = user
+        self.feedbacks = []
+
+    def get_waiting_feedbacks_count(self):
+        feedbacks_count = self.user.client.service.doGetWaitingFeedbacksCount(
+            self.user.session_handle,
+        )
+        return feedbacks_count
+
+
 if __name__ == '__main__':
     logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO)
 
@@ -161,6 +182,10 @@ if __name__ == '__main__':
         web_api_key='you can generate it on allegro.pl website',
     )
     user.get_login_parameters()
+
+    user_feedbacks = AllegroUserFeedbacks(user)
+    feedbacks_count = user_feedbacks.get_waiting_feedbacks_count()
+    print(feedbacks_count)
 
     user_items = AllegroUserItems(user)
 
