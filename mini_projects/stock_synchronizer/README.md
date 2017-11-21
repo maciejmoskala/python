@@ -1,12 +1,14 @@
-Author: Maciej Moskała
-
-# stock_synchronizer
+# Stock synchronizer
 
 Goal of application is to keep products stock in sync (i.e. ebay or amazon products). It means that stock level on all products from one tree should be exactly the same all the time.
 
+# Author
+
+Maciej Moskała
+
 # Installation
 
-Project is set to run in Python 3.5.0+
+Project is set to run in Python 3.6.0+
 
 To install requirements run:
 

@@ -33,7 +33,8 @@ def load():
         try:
             data = yaml.load(data.decode('utf-8'))
         except Exception:
-            raise RuntimeError('Resource under [{}] is not a valid yaml!'.format(url))
+            raise RuntimeError(
+                'Resource under {} is not a valid yaml!'.format(url))
         config['config'] = url
         config.update(data)
 

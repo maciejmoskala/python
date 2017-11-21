@@ -1,5 +1,4 @@
 from stock_synchronizer.core.rpc import REGISTRY
-from stock_synchronizer.core.exceptions import EventNotFound
 from stock_synchronizer.core.exceptions import MethodNotFound
 from stock_synchronizer.core.exceptions import OutdatedEvent
 

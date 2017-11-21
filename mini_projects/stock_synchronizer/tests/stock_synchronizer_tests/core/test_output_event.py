@@ -1,4 +1,4 @@
-import ujson
+import json
 import pytest
 from stock_synchronizer.core.output_event import JsonOutputEvent
 
@@ -29,6 +29,6 @@ class TestJsonOutputEvent:
 
     def test_to_json(self, output_event_dct, output_event):
         json_inst = output_event.to_json()
-        dct_inst = ujson.loads(json_inst)
+        dct_inst = json.loads(json_inst)
         assert dct_inst['method'] == output_event_dct['method']
         assert dct_inst['param'] == output_event_dct['param']

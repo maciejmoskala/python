@@ -1,6 +1,7 @@
 import pytest
 from unittest import mock
 
+
 class TestProductRpc:
 
     default_stock = 10
@@ -14,7 +15,8 @@ class TestProductRpc:
         with mock.patch('stock_synchronizer.core.rpc.product.PRODUCT_HANDLER'):
             yield
 
-    def test_product_created_with_none_parent_id(self, parent_id, mocked_send_output_message):
+    def test_product_created_with_none_parent_id(
+            self, parent_id, mocked_send_output_message):
         from stock_synchronizer.core.rpc.product import ProductCreated
 
         ProductCreated(
@@ -33,7 +35,8 @@ class TestProductRpc:
                 stock=self.default_stock,
             )
 
-    def test_product_created_with_none_stock(self, parent_id, mocked_send_output_message):
+    def test_product_created_with_none_stock(
+            self, parent_id, mocked_send_output_message):
         from stock_synchronizer.core.rpc.product import ProductCreated
 
         with pytest.raises(Exception):
@@ -60,7 +63,8 @@ class TestProductRpc:
                 stock=self.default_stock,
             )
 
-    def test_product_updated_with_none_stock(self, parent_id, mocked_send_output_message):
+    def test_product_updated_with_none_stock(
+            self, parent_id, mocked_send_output_message):
         from stock_synchronizer.core.rpc.product import ProductUpdated
 
         with pytest.raises(Exception):

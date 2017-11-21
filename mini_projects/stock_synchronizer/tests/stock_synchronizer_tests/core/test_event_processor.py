@@ -1,4 +1,3 @@
-import ujson
 import pytest
 from stock_synchronizer.core.input_event import JsonInputEvent
 from stock_synchronizer.core.event_processor import process_event

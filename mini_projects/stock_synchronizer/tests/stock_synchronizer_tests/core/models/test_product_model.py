@@ -3,7 +3,7 @@ from stock_synchronizer.core.models.product import Product
 
 
 class TestProductModel:
-    
+
     @pytest.fixture
     def product(self):
         return Product(
@@ -19,6 +19,6 @@ class TestProductModel:
         assert product.stock != old_stock
 
     def test_deactivate(self, product):
-        assert product.is_active == True
+        assert product.is_active is True
         product.deactivate()
-        assert product.is_active == False
+        assert product.is_active is False

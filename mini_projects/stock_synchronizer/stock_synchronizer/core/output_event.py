@@ -1,4 +1,4 @@
-import ujson
+import json
 
 
 class JsonOutputEvent:
@@ -14,4 +14,4 @@ class JsonOutputEvent:
 
     def to_json(self):
         dct = self.to_dict()
-        return ujson.dumps(dct)
+        return json.dumps(dct)

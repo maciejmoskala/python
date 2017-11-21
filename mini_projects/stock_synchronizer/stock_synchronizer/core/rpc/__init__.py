@@ -8,7 +8,7 @@ def register_function(fn_path):
     module = import_module(path)
     fn = getattr(module, fn_name)
     if fn_name in REGISTRY:
-        raise RuntimeError('rpc method [{}] already registerd.'.format(fn_name))
+        raise RuntimeError('Method {} already registerd.'.format(fn_name))
     REGISTRY[fn_name] = fn
 
 

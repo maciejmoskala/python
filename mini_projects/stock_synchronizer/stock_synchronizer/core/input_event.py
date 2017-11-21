@@ -1,4 +1,4 @@
-import ujson
+import json
 
 
 class JsonInputEvent:
@@ -28,7 +28,7 @@ class JsonInputEvent:
 
     @classmethod
     def from_json(cls, message):
-        dct = ujson.loads(message)
+        dct = json.loads(message)
 
         if not isinstance(dct, dict):
             raise ValueError('Received non-dict msg!')

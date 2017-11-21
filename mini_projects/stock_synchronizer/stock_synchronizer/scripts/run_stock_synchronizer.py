@@ -1,4 +1,4 @@
-import ujson
+import json
 from stock_synchronizer import settings
 from stock_synchronizer.startup import startup
 from stock_synchronizer.event_sourcing.worker import EventWorker
@@ -11,7 +11,7 @@ def summary():
     dct = {
         'type': 'Summary',
     }
-    return ujson.dumps(dct)
+    return json.dumps(dct)
 
 
 def main():

@@ -9,7 +9,7 @@ def ProductCreated(**params):
     stock = params.get('stock')
     if any(element is None for element in (id, stock)):
         raise Exception('Incorrect event structure')
-    
+
     PRODUCT_HANDLER.create_product(id, parent_id, stock)
 
 

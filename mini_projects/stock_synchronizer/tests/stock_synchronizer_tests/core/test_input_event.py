@@ -1,4 +1,4 @@
-import ujson
+import json
 import pytest
 from stock_synchronizer.core.input_event import JsonInputEvent
 
@@ -18,7 +18,7 @@ class TestJsonInputEvent:
 
     @pytest.fixture
     def input_event_json(self, input_event_dct):
-        return ujson.dumps(input_event_dct)
+        return json.dumps(input_event_dct)
 
     def test_from_dict_correct_event(self, input_event_dct):
         inst = JsonInputEvent.from_dict(input_event_dct)
