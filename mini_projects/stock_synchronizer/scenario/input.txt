@@ -1,0 +1,13 @@
+{"timestamp": 123, "type": "ProductCreated", "id": 1, "parent_id": null, "stock": 10}
+{"timestamp": 124, "type": "ProductCreated", "id": 2, "parent_id": 1, "stock": 10}
+{"timestamp": 125, "type": "ProductCreated", "id": 3, "parent_id": 1, "stock": 10}
+{"timestamp": 126, "type": "ProductUpdated", "id": 1, "stock": 9}
+{"timestamp": 127, "type": "ProductUpdated", "id": 1, "stock": 8}
+{"timestamp": 129, "type": "ProductUpdated", "id": 1, "stock": 20}
+{"timestamp": 130, "type": "IncorrectEventType", "id": 1, "stock": 20}
+{"timestamp": 131, "type": "ProductUpdated", "id": 1}
+{"timestamp": 132, "type": "ProductUpdated", "id": 4, "stock": 20}
+{"timestamp": 128, "type": "ProductUpdated", "id": 1, "stock": 7}
+{"timestamp": 134, "type": "ProductUpdated", "id": 3, "stock": 19}
+{"timestamp": 135, "type": "ProductEnded", "id": 2}
+{"timestamp": 136, "type": "ProductUpdated", "id": 3, "stock": 0}
