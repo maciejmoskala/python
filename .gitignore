@@ -4,6 +4,8 @@
 .cache
 .eggs
 .coverage
+.tox
 __pycache__
 build
 dist
+.idea
